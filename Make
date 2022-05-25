@@ -1,2 +1,0 @@
-build:
-	g++ -O3 -Iincludes src/*.cpp -o out
