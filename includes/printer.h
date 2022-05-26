@@ -1,6 +1,8 @@
 #ifndef _CHESS_PRINTER_
 #define _CHESS_PRINTER_
 
-void print();
+void chessy_welcome();
+void chessy_gameboard();
+void chessy_about();
 
 #endif

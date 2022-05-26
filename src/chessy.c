@@ -2,6 +2,6 @@
 #include <printer.h>
 
 int main() {
-    printf("Chess engine let's go\n");
+    chessy_welcome();
     return 0;
 }
