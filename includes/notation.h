@@ -1,6 +1,7 @@
 #ifndef _CHESS_NOTATIONS_
 #define _CHESS_NOTATIONS_
 
+#define EMPTY  -1
 #define PAWN    0
 #define BISHOP  1
 #define KNIGHT  2
