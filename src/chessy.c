@@ -3,54 +3,54 @@
 #include <printer.h>
 #include <notation.h>
 #include <ctype.h>
+#include <windows.h>
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
     chessy_welcome();
-    Piece board[8][8];
+    Piece board[64];
     char FEN[] = "rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR";
-    int _=-1, __=sizeof(FEN)/sizeof(char)-2, c=0, r=0;
+    int _=-1, __=sizeof(FEN)/sizeof(char)-2, c=0;
     while (_ < __) {
         _++;
-        if ((FEN[_]=='/')||!((c+1)%8)){
-            r++;
-            c=0;
+        if ((FEN[_]=='/'))
             continue;
-        }
         if (isdigit(FEN[_])) {
             int n = FEN[_]-'0';
             for (int i=0; i<n; i++) {
-                Piece p;
-                p.id = -1;
-                board[c+i][r] = p;
+                Piece *p = &board[c+i];
+                p->id = -1;
             }
-            c=n-1;
+            c+=n;
             continue;
         };
-        Piece p;
-        p.side = isupper(FEN[_]);
+        Piece *p = &board[c];
+        p->side = isupper(FEN[_]);
+        p->id = -2;
         int t = tolower(FEN[_]);
         switch (t) {
             case 'p':
-                p.id = PAWN;
+                p->id = PAWN;
                 break;
             case 'b':
-                p.id = BISHOP;
+                p->id = BISHOP;
                 break;
             case 'n':
-                p.id = KNIGHT;
+                p->id = KNIGHT;
                 break;
             case 'r':
-                p.id = ROOK;
+                p->id = ROOK;
                 break;
             case 'q':
-                p.id = QUEEN;
+                p->id = QUEEN;
                 break;
             case 'k':
-                p.id = KING;
+                p->id = KING;
                 break;
         }
-        board[r][c] = p;
+        c++;
     }
-    chessy_gameboard(board, 0, -1, -1);
+    chessy_gameboard(board, 0, -1);
     return 0;
 }

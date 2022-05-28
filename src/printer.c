@@ -27,14 +27,19 @@ void chessy_about() {
     printf(" > Source code: https://github.com/Zoesads/chessy\n");
 }
 
-void chessy_gameboard(Piece board[8][8], int turn, int p_row, int p_col) {
-    if (p_row>=1&&p_col>=1&&board[p_row][p_col].side!=turn) return;
-    for (int col = 0; col < 8; col++) {
-        for (int row = 0; row < 8; row++) {
-            Piece p = board[row][col];
-            printf("%s%s%s ", ((row==0)?"\t":""), ((p.id==EMPTY)?((((row+1)%2)!=((col+1)%2))?"■":"□"):pieces_symbol[p.id%5][p.side%1]), clr_style_rset);
+void chessy_gameboard(Piece board[64], int turn, int pos) {
+    if (pos>=0&&board[pos].side!=turn) return;
+    printf("\n\t");
+    int r=0, c=0;
+    for (int i = 0; i < 64; i++) {
+        Piece p = board[i];
+        printf("%s%s%s ", ((r%2)!=(c%2))?clr_bg_black:clr_bg_white, ((p.id==EMPTY)?" ":pieces_symbol[p.id][p.side%1]), clr_style_rset);
+        c++;
+        if (!((i+1)%8)){
+            r++;
+            c = 0;
+            printf("\n\t");
         }
-        printf("\n");
     }
     printf("%s", clr_style_rset);
 }
