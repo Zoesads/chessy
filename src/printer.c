@@ -29,17 +29,21 @@ void chessy_about() {
 
 void chessy_gameboard(Piece board[64], int turn, int pos) {
     if (pos>=0&&board[pos].side!=turn) return;
-    printf("\n\t");
+    printf("\n  [1]\t");
     int r=0, c=0;
     for (int i = 0; i < 64; i++) {
         Piece p = board[i];
-        printf("%s%s%s ", ((r%2)!=(c%2))?clr_bg_black:clr_bg_white, ((p.id==EMPTY)?" ":pieces_symbol[p.id][p.side%1]), clr_style_rset);
+        int z = ((r%2)!=(c%2));
+        printf("%s%s[%s]%s", z?clr_bg_black:clr_bg_white, z?clr_fg_white:clr_fg_black, ((p.id==EMPTY)?" ":pieces_symbol[p.id][p.side]), clr_style_rset);
         c++;
-        if (!((i+1)%8)){
+        if (!((i+1)%8)&&r<7){
             r++;
             c = 0;
-            printf("\n\t");
+            printf("\n  [%i]\t", r+1);
         }
     }
-    printf("%s", clr_style_rset);
+    printf("%s\n\n\t", clr_style_rset);
+    for (char i='a'; i < 'i'; i++)
+        printf("[%c]", i);
+    printf("\n");
 }

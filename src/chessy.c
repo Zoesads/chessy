@@ -26,8 +26,7 @@ int main() {
             continue;
         };
         Piece *p = &board[c];
-        p->side = isupper(FEN[_]);
-        p->id = -2;
+        p->side = !isupper(FEN[_]);
         int t = tolower(FEN[_]);
         switch (t) {
             case 'p':
