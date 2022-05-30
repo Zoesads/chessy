@@ -8,9 +8,15 @@ void index2rc(int z[2], int index) {
     z[1] = (index - z[0]) >> 3;
 }
 
-void ComputeMoves(int moves[64], Piece piece) {
+int get_Index(char col, char row) {
+    if (col < 'a' || col > 'h' || row < '1' || row > '8')
+        return -1;
+    return ((8 - (row - '0'))<<3) + (col - 'a');
+}
+
+void GenerateMoves(int moves[64], Piece piece) {
     int pid = piece.id;
-    memset(moves, 0, 64*sizeof(int));
+    memset(moves, 0, sizeof(int)<<6);
     switch (pid) {
         case EMPTY:
             printf("what\n");
@@ -30,7 +36,7 @@ void ComputeMoves(int moves[64], Piece piece) {
             } 
             // forked from rook's
             int dis[] = {7-k[0], 7-k[1], k[0], k[1]};
-            int offset[4] = {8, 1, -1, -8};
+            int offset[4] = {1, 8, -1, -8};
             for (int i = 0; i < 4; i++) {
                 for (int g = 1; g <= dis[i]; g++)
                     moves[pp+offset[i]] = 1;
@@ -70,6 +76,7 @@ void ComputeMoves(int moves[64], Piece piece) {
             int k[2];
             index2rc(k, pp);
             if (pid==ROOK||pid==QUEEN) {
+                // east - south - west - north //
                 int dis[] = {7-k[0], 7-k[1], k[0], k[1]};
                 int offset[] = {1, 8, -1, -8};
                 for (int i = 0; i < 4; i++) {
