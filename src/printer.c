@@ -29,7 +29,7 @@ void chessy_about() {
 
 void chessy_gameboard(Piece board[64], int turn, int pos) {
     if (pos>=0&&board[pos].side!=turn) return;
-    printf("\n  [1]\t");
+    printf("\n  [8]\t");
     int r=0, c=0;
     for (int i = 0; i < 64; i++) {
         Piece p = board[i];
@@ -39,7 +39,7 @@ void chessy_gameboard(Piece board[64], int turn, int pos) {
         if (!((i+1)%8)&&r<7){
             r++;
             c = 0;
-            printf("\n  [%i]\t", r+1);
+            printf("\n  [%i]\t", 8-r);
         }
     }
     printf("%s\n\n\t", clr_style_rset);

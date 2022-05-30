@@ -1,18 +1,16 @@
 #include <stdio.h>
-#include <piece.h>
-#include <printer.h>
-#include <notation.h>
+#include <string.h>
 #include <ctype.h>
 #include <windows.h>
 
-int main() {
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
-    chessy_welcome();
-    Piece board[64];
-    char FEN[] = "rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR";
-    int _=-1, __=sizeof(FEN)/sizeof(char)-2, c=0;
-    while (_ < __) {
+#include <piece.h>
+#include <printer.h>
+#include <notation.h>
+#include <movements.h>
+
+void create_Board(Piece board[64], char FEN[], int length) {
+    int _=-1, c=0;
+    while (_ < length) {
         _++;
         if ((FEN[_]=='/'))
             continue;
@@ -20,6 +18,7 @@ int main() {
             int n = FEN[_]-'0';
             for (int i=0; i<n; i++) {
                 Piece *p = &board[c+i];
+                p-> pos = c+i;
                 p->id = -1;
             }
             c+=n;
@@ -27,9 +26,11 @@ int main() {
         };
         Piece *p = &board[c];
         p->side = !isupper(FEN[_]);
+        p->pos = c;
         int t = tolower(FEN[_]);
         switch (t) {
             case 'p':
+                p->moved = 0;
                 p->id = PAWN;
                 break;
             case 'b':
@@ -50,6 +51,17 @@ int main() {
         }
         c++;
     }
+}
+
+int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    chessy_welcome();
+    int moves[64];
+    char FEN[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    Piece board[64];
+    create_Board(board, FEN, strlen(FEN));
     chessy_gameboard(board, 0, -1);
+    ComputeMoves(moves, board[4]);
     return 0;
 }
