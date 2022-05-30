@@ -29,7 +29,8 @@ void create_Board(Piece board[64], char FEN[], int length) {
             for (int i=0; i<n; i++) {
                 Piece *p = &board[c+i];
                 p-> pos = c+i;
-                p->id = -1;
+                p->side = -1;
+                p->id = EMPTY;
             }
             c+=n;
             continue;
@@ -91,7 +92,7 @@ int main() {
                     continue;
                 }
                 pIdx = idx;
-                GenerateMoves(moves, board[idx]);
+                GenerateMoves(board, moves, board[idx]);
                 memcpy(selc, moves, s64i);
                 selc[idx] = 2;
                 output_board();
