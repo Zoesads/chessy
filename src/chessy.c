@@ -36,7 +36,7 @@ void create_Board(Piece board[64], char FEN[], int length) {
             continue;
         };
         Piece *p = &board[c];
-        p->side = !islower(FEN[_]);
+        p->side = !islower(FEN[_])?WHITE_SIDE:BLACK_SIDE;
         p->pos = c;
         int t = tolower(FEN[_]);
         switch (t) {
@@ -76,50 +76,55 @@ int main() {
     output_board();
 
     while (winner==-1) {
-        char inp[4];
-        inp[3] = '\0';
-        printf("%s@ChessyPlayer  >>  ", turn==WHITE_SIDE?"WHITE":"BLACK");
-        scanf("%2s", inp);
+        char inp[6];
+        inp[5] = '\0';
+        printf("csp@plr: ~/Chessy/%s $ ", turn==WHITE_SIDE?"WHITE":"BLACK");
+        scanf("%5s", inp);
         int n = strlen(inp);
         if (n>0) {
-            int idx = n==2?get_Index(inp[0], inp[1]):-1;
-            if (mode==MODE_SELC&&idx!=-1) {
-                if (pIdx!=-1){
+            int idx[2] = {-1, -1};
+            idx[0] = n==2?get_Index(inp[0], inp[1]):-1;
+            idx[1] = (n==5&&inp[2] == ' ')?get_Index(inp[3], inp[4]):-1;
+
+            if (pIdx == -1 && idx[0]!=-1 && board[idx[0]].side == turn) {
+                pIdx = idx[0];
+                mode = MODE_SELC;
+                GenerateMoves(board, moves, board[pIdx]);
+                if(idx[1]==-1) {
+                    memcpy(selc, moves, s64i);
+                    selc[idx[0]] = 2;
+                    output_board();
+                }
+                else continue;
+            }
+
+            if (pIdx!=-1&&((idx[1]!=-1&&pIdx!=idx[1])||(idx[0]!=-1&&pIdx!=idx[0]))){
+                int ridx = idx[idx[1]!=-1];
+                if (moves[ridx] == 1) {
+                    int pos = board[ridx].pos;
+                    board[pIdx].pos = pos;
+                    board[ridx] = board[pIdx];
+                    board[pIdx].side = -1;
+                    board[pIdx].id = EMPTY;
                     turn = !turn;
                     pIdx = -1;
                     mode = MODE_IDLE;
                     memset(moves, 0, s64i);
-                    continue;
+                    memset(selc, 0, s64i);
+                    output_board();
                 }
-                pIdx = idx;
-                GenerateMoves(board, moves, board[idx]);
-                memcpy(selc, moves, s64i);
-                selc[idx] = 2;
-                output_board();
                 continue;
             }
+
             switch ((int)inp[0]) {
-                case 's': { // select mode
-                    if (mode != MODE_SELC) {
-                        mode = MODE_SELC;
-                        for (int i = 0; i < 64; i++)
-                            selc[i] = (board[i].id>-1?2*(board[i].side!=turn):0);
-                    } else {
-                        mode = MODE_IDLE;
-                        memset(selc, 0, s64i);
-                        pIdx = -1;
-                    }
-                    output_board();
-                    break;
-                }
-                case 'u': { // undo
+                case 'u': {
                     pIdx = -1;
                     memset(moves, 0, s64i);
                     memset(selc, 0, s64i);
                     output_board();
                     break;
                 }
-                case 'q': { // quit game
+                case 'q': {
                     winner = 69;
                     break;
                 }

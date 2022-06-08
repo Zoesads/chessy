@@ -90,7 +90,7 @@ void GenerateMoves(Piece board[64], int moves[64], Piece piece) {
             int k = piece.side==BLACK_SIDE?1:-1;
             piece.moved = 1;
             for (int i = 1; i <= m; i++) {
-                int z = piece.pos-((i*k)<<3);
+                int z = piece.pos+((i*k)<<3);
                 if (z<0||z>63||board[z].side==piece.side) break;
                 moves[z] = 1;
             }
