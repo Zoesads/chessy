@@ -5,7 +5,7 @@
 #include <movements.h>
 #include <piece.h>
 
-char pieces_symbol[6][2][4] = {
+const char pieces_symbol[6][2][4] = {
     // WHITE - BLACK
     {"♙", "♟"},
     {"♗", "♝"},
@@ -24,7 +24,7 @@ void chessy_about() {
     printf("About Chessy:\n");
     printf(" > A terminal chess\n");
     printf(" > Author: Zoesads\n");
-    printf(" > Written in C\n");
+    printf(" > Written in pure C\n");
     printf(" > Source code: https://github.com/Zoesads/chessy\n");
 }
 

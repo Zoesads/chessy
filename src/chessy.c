@@ -1,22 +1,25 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <windows.h>
 
 #include <piece.h>
 #include <printer.h>
 #include <notation.h>
 #include <movements.h>
+#ifdef _WIN32
+    #include <windows.h>
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+#endif
 
 int turn = WHITE_SIDE;
-int winner = -1;
+int done = 0;
 int s64i = sizeof(int)<<6;
 int moves[64];
 int selc[64];
 int mode = MODE_IDLE;
-int pIdx =-1;
 Piece board[64];
-char FEN[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+char FEN[] = "8/4P3/8/8/8/8/8/8";
 
 void create_Board(Piece board[64], char FEN[], int length) {
     int _=-1, c=0;
@@ -51,12 +54,14 @@ void create_Board(Piece board[64], char FEN[], int length) {
                 p->id = KNIGHT;
                 break;
             case 'r':
+                p->moved = 0;
                 p->id = ROOK;
                 break;
             case 'q':
                 p->id = QUEEN;
                 break;
             case 'k':
+                p->moved = 0;
                 p->id = KING;
                 break;
         }
@@ -69,66 +74,87 @@ int main() {
 
     memset(moves, 0, s64i);
     memset(selc, 0, s64i);
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
     chessy_welcome();
     create_Board(board, FEN, strlen(FEN));
     output_board();
 
-    while (winner==-1) {
-        char inp[6];
-        inp[5] = '\0';
-        printf("csp@plr: ~/Chessy/%s $ ", turn==WHITE_SIDE?"WHITE":"BLACK");
-        scanf("%5s", inp);
+    while (!done) {
+        char inp[3];
+        inp[2] = '\0';
+        printf("%s: ", turn==WHITE_SIDE?"WHITE":"BLACK");
+        scanf("%2s", inp);
         int n = strlen(inp);
-        if (n>0) {
-            int idx[2] = {-1, -1};
-            idx[0] = n==2?get_Index(inp[0], inp[1]):-1;
-            idx[1] = (n==5&&inp[2] == ' ')?get_Index(inp[3], inp[4]):-1;
+        if (n==2) {
+            int idx[2] = {get_Index(inp[0], inp[1]), -1};
 
-            if (pIdx == -1 && idx[0]!=-1 && board[idx[0]].side == turn) {
-                pIdx = idx[0];
-                mode = MODE_SELC;
-                GenerateMoves(board, moves, board[pIdx]);
-                if(idx[1]==-1) {
-                    memcpy(selc, moves, s64i);
-                    selc[idx[0]] = 2;
-                    output_board();
-                }
-                else continue;
+            while (idx[0]==-1||board[idx[0]].side!=turn){
+                scanf("%2s", inp);
+                if (strlen(inp)==2)
+                    idx[0] = get_Index(inp[0], inp[1]);
             }
+            mode = MODE_SELC;
+            GenerateMoves(board, moves, board[idx[0]]);
+            memcpy(selc, moves, s64i);
+            selc[idx[0]] = 2;
+            output_board();
+            printf("Move to: ");
 
-            if (pIdx!=-1&&((idx[1]!=-1&&pIdx!=idx[1])||(idx[0]!=-1&&pIdx!=idx[0]))){
+            while (idx[1]==-1){
+                scanf("%2s", inp);
+                if (strlen(inp)==2)
+                    idx[1] = get_Index(inp[0], inp[1]);
+            }
+            if (idx[0]!=idx[1]){
                 int ridx = idx[idx[1]!=-1];
                 if (moves[ridx] == 1) {
                     int pos = board[ridx].pos;
-                    board[pIdx].pos = pos;
-                    board[ridx] = board[pIdx];
-                    board[pIdx].side = -1;
-                    board[pIdx].id = EMPTY;
+                    board[idx[0]].pos = pos;
+                    board[ridx] = board[idx[0]];
+                    board[idx[0]].side = -1;
+                    board[idx[0]].id = EMPTY;
                     turn = !turn;
-                    pIdx = -1;
                     mode = MODE_IDLE;
                     memset(moves, 0, s64i);
                     memset(selc, 0, s64i);
                     output_board();
+                    if (board[ridx].id==PAWN&&((turn!=WHITE_SIDE&&pos>-1&&pos<8)||(turn!=BLACK_SIDE&&pos>54&&pos<64))) {
+                        printf("Promote pawn to: \n  [1] = Queen\n  [2] = Rook\n  [3] = Bishop\n  [4] = Knight\n>> ");
+                        int c = -1;
+                        while (c<1||c>4)
+                            scanf("%i", &c);
+                        switch (c) {
+                            case 1:
+                                board[ridx].id = QUEEN;
+                                break;
+                            case 2:
+                                board[ridx].id = ROOK;
+                                break;
+                            case 3:
+                                board[ridx].id = BISHOP;
+                                break;
+                            case 4:
+                                board[ridx].id = KNIGHT;
+                                break;
+                        }
+                        output_board();
+                    }
+                    continue;
                 }
-                continue;
             }
-
+            printf("Unable to perform this move\n");
+            continue;
+        }
+        if (n==1){
             switch ((int)inp[0]) {
-                case 'u': {
-                    pIdx = -1;
-                    memset(moves, 0, s64i);
-                    memset(selc, 0, s64i);
-                    output_board();
-                    break;
-                }
                 case 'q': {
-                    winner = 69;
+                    done = 1;
                     break;
                 }
-
+                case 'r': {
+                    done = 1;
+                    printf("%s resigned. %s has won. GG!\n", turn==WHITE_SIDE?"White":"Black", turn==BLACK_SIDE?"White":"Black");
+                    break;
+                }
             }
         }
     }
